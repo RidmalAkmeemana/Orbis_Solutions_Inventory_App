@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:panara_dialogs/panara_dialogs.dart';
-import 'package:inventory_app/API/api_service.dart';
+import 'package:loading_indicator/loading_indicator.dart';
+
 import 'MainScaffold.dart';
 import 'HomeBody.dart';
 import 'ProfileScreenBody.dart';
 import 'LogInScreen.dart';
+import 'package:inventory_app/API/api_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -25,7 +27,8 @@ class _HomeScreenState extends State<HomeScreen> {
   double totalOutstanding = 0;
   double totalExpenses = 0;
 
-  bool isLoading = true;
+  bool isHomeLoading = true;
+  bool isProfileLoading = true;
 
   int _selectedIndex = 0;
 
@@ -41,10 +44,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _handleRefresh() async {
-    await _fetchDashboardData();
-    await _fetchProfile(_username);
-    await _fetchUsers();
-    setState(() {});
+    if (_selectedIndex == 0) {
+      await _fetchDashboardData();
+      await _fetchUsers();
+    } else if (_selectedIndex == 2) {
+      await _fetchProfile(_username);
+    }
   }
 
   Future<void> _loadSession() async {
@@ -53,7 +58,6 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_username.isNotEmpty) {
       await _fetchProfile(_username);
     }
-    setState(() {});
   }
 
   void _showSessionErrorDialog() {
@@ -91,12 +95,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _fetchProfile(String username) async {
+    setState(() => isProfileLoading = true);
     try {
       final data = await ApiService.getProfile(username);
       if (data['success'] == true) {
         setState(() {
           _firstName = data['First_Name'] ?? '';
           _lastName = data['Last_Name'] ?? '';
+          _username = data['Username'] ?? '';
           _role = data['Status'] ?? '';
           _profileImage = data['Img'] ?? '';
         });
@@ -106,11 +112,13 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       print("Error fetching profile: $e");
       _showSessionErrorDialog();
+    } finally {
+      setState(() => isProfileLoading = false);
     }
   }
 
   Future<void> _fetchDashboardData() async {
-    setState(() => isLoading = true);
+    setState(() => isHomeLoading = true);
     try {
       final data = await ApiService.getDashboardSuperAdminData();
       if (data["success"] == "true") {
@@ -126,8 +134,9 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       print("Dashboard Load Error: $e");
       _showSessionErrorDialog();
+    } finally {
+      setState(() => isHomeLoading = false);
     }
-    setState(() => isLoading = false);
   }
 
   Future<void> _fetchUsers() async {
@@ -154,16 +163,34 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onItemTapped(int index) {
     setState(() => _selectedIndex = index);
+
+    // Fetch data when tab is tapped
+    if (index == 0) {
+      _fetchDashboardData();
+      _fetchUsers();
+    } else if (index == 2 && _username.isNotEmpty) {
+      _fetchProfile(_username);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Screens list for IndexedStack
     final List<Widget> bodyScreens = [
-      HomeBody(
+      isHomeLoading
+          ? Center(
+        child: SizedBox(
+          height: 80,
+          width: 80,
+          child: LoadingIndicator(
+            indicatorType: Indicator.ballClipRotateMultiple,
+            colors: [Color(0xFFbe3235)],
+          ),
+        ),
+      )
+          : HomeBody(
         firstName: _firstName,
         lastName: _lastName,
-        isLoading: isLoading,
+        isLoading: false,
         totalSales: totalSales,
         totalExpenses: totalExpenses,
         totalOutstanding: totalOutstanding,
@@ -172,15 +199,26 @@ class _HomeScreenState extends State<HomeScreen> {
         onRefresh: _handleRefresh,
       ),
       Center(child: Text("FAB Action Screen")), // index 1
-      ProfileScreenBody(
+      isProfileLoading
+          ? Center(
+        child: SizedBox(
+          height: 80,
+          width: 80,
+          child: LoadingIndicator(
+            indicatorType: Indicator.ballClipRotateMultiple,
+            colors: [Color(0xFFbe3235)],
+          ),
+        ),
+      )
+          : ProfileScreenBody(
         firstName: _firstName,
         lastName: _lastName,
         username: _username,
         role: _role,
         profileImage: _profileImage,
-        isLoading: isLoading,
+        isLoading: false,
         onRefresh: _handleRefresh,
-      ), // index 2
+      ),
     ];
 
     return MainScaffold(

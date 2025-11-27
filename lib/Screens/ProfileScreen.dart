@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:panara_dialogs/panara_dialogs.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 
 import 'LogInScreen.dart';
 import 'HomeScreen.dart';
@@ -19,7 +20,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _lastName = '';
   String _userRole = '';
   String _profileImage = "";
-  bool isLoading = true;
+  bool isLoading = true; // Loader active initially
 
   int _selectedIndex = 2; // Highlight Profile
 
@@ -31,16 +32,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _handleRefresh() async {
     await _fetchProfile(_userName);
-    setState(() {});
   }
 
   Future<void> _loadSession() async {
+    setState(() => isLoading = true); // Show loader immediately
     final prefs = await SharedPreferences.getInstance();
     _userName = prefs.getString('username') ?? '';
     if (_userName.isNotEmpty) {
       await _fetchProfile(_userName);
     }
-    setState(() {});
+    setState(() {}); // Rebuild UI
   }
 
   void _showSessionErrorDialog() {
@@ -78,7 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _fetchProfile(String username) async {
-    setState(() => isLoading = true);
+    setState(() => isLoading = true); // Show loader while fetching
     try {
       final data = await ApiService.getProfile(username);
       if (data['success'] == true) {
@@ -95,8 +96,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } catch (e) {
       print("Error fetching profile: $e");
       _showSessionErrorDialog();
+    } finally {
+      setState(() => isLoading = false); // Hide loader after fetch
     }
-    setState(() => isLoading = false);
   }
 
   Future<void> _logout() async {
@@ -110,7 +112,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _onItemTapped(int index) {
     setState(() => _selectedIndex = index);
-
     if (index == 0) {
       Navigator.pushReplacement(
         context,
@@ -126,13 +127,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
       onItemTapped: _onItemTapped,
       onLogoutTap: _showLogoutDialog,
       onFabTapped: () => _onItemTapped(1),
-      body: ProfileScreenBody(
+      body: isLoading
+          ? Center(
+        child: SizedBox(
+          height: 80,
+          width: 80,
+          child: LoadingIndicator(
+            indicatorType: Indicator.ballClipRotateMultiple,
+            colors: [Color(0xFFbe3235)],
+          ),
+        ),
+      )
+          : ProfileScreenBody(
         firstName: _firstName,
         lastName: _lastName,
         username: _userName,
         role: _userRole,
         profileImage: _profileImage,
-        isLoading: isLoading,
+        isLoading: false,
         onRefresh: _handleRefresh,
       ),
     );
