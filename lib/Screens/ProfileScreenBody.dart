@@ -9,6 +9,8 @@ class ProfileScreenBody extends StatelessWidget {
   final String profileImage;
   final bool isLoading;
   final Future<void> Function()? onRefresh;
+  final VoidCallback? onChangePhoto;
+  final bool isImageUploading;
 
   const ProfileScreenBody({
     required this.firstName,
@@ -18,6 +20,9 @@ class ProfileScreenBody extends StatelessWidget {
     required this.profileImage,
     this.isLoading = false,
     this.onRefresh,
+    this.onChangePhoto,
+    this.isImageUploading = false,
+
     Key? key,
   }) : super(key: key);
 
@@ -47,16 +52,35 @@ class ProfileScreenBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(height: 10),
-          Center(
-            child: CircleAvatar(
-              radius: 45,
-              backgroundColor: Colors.grey.shade300,
-              backgroundImage:
-              profileImage.isNotEmpty ? NetworkImage(profileImage) : null,
-              child: profileImage.isEmpty
-                  ? Icon(Icons.person, size: 45, color: Colors.white)
-                  : null,
-            ),
+          Stack(
+            children: [
+              CircleAvatar(
+                radius: 45,
+                backgroundColor: Colors.grey.shade300,
+                backgroundImage:
+                profileImage.isNotEmpty ? NetworkImage(profileImage) : null,
+                child: profileImage.isEmpty
+                    ? Icon(Icons.person, size: 45, color: Colors.white)
+                    : null,
+              ),
+
+              // Edit Icon
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: GestureDetector(
+                  onTap: onChangePhoto,
+                  child: Container(
+                    padding: EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Color(0xFFbe3235),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.edit, color: Colors.white, size: 15),
+                  ),
+                ),
+              ),
+            ],
           ),
           SizedBox(height: 15),
           Text(fullName,

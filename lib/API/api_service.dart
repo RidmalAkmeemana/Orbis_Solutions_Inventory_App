@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  //static const String _baseUrl = 'https://uat.orbislk.com';
   static const String _baseUrl = 'https://uat.orbislk.com/Orbis_Solutions_Inventory_System/API/MobileApp';
   static const String _loginEndpoint = '$_baseUrl/getAdminLogin.php';
   static const String _profileEndpoint = '$_baseUrl/getProfileDetails.php';
