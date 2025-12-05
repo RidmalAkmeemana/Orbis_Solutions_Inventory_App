@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:panara_dialogs/panara_dialogs.dart';
+import 'LogInScreen.dart';
 
 class ProfileScreenBody extends StatelessWidget {
   final String firstName;
@@ -12,6 +15,11 @@ class ProfileScreenBody extends StatelessWidget {
   final VoidCallback? onChangePhoto;
   final bool isImageUploading;
 
+  // Callbacks for Account Settings
+  final VoidCallback? onUpdateAccount;
+  final VoidCallback? onResetPassword;
+  final VoidCallback? onLogout;
+
   const ProfileScreenBody({
     required this.firstName,
     required this.lastName,
@@ -22,30 +30,95 @@ class ProfileScreenBody extends StatelessWidget {
     this.onRefresh,
     this.onChangePhoto,
     this.isImageUploading = false,
-
+    this.onUpdateAccount,
+    this.onResetPassword,
+    this.onLogout,
     Key? key,
   }) : super(key: key);
 
-  Widget _buildProfileField(String label, String value) {
+  Widget _buildProfileField() {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 8),
       padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 5)],
-      ),
-      child: Row(
-        children: [
-          Text("$label: ", style: TextStyle(fontWeight: FontWeight.bold)),
-          Expanded(child: Text(value)),
-        ],
+    );
+  }
+
+  void _showImageOptions(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(
+          "Update Profile Image",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(Icons.photo, color: Color(0xFFbe3235)),
+              title: Text("Select From Gallery"),
+              onTap: () {
+                Navigator.pop(context);
+                if (onChangePhoto != null) onChangePhoto!();
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.camera_alt, color: Color(0xFFbe3235)),
+              title: Text("Take a Photo"),
+              onTap: () {
+                Navigator.pop(context);
+                if (onChangePhoto != null) onChangePhoto!();
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.cancel, color: Color(0xFFbe3235)),
+              title: Text("Cancel"),
+              onTap: () => Navigator.pop(context),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildProfileBody() {
+  // LogOut Function
+  Future<void> _logout(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
+    // Navigate to LogInScreen and remove all previous routes
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => LogScreen()),
+          (route) => false,
+    );
+  }
+
+  // Show Logout Confirmation Dialog
+  void _showLogoutDialog(BuildContext context) {
+    PanaraConfirmDialog.show(
+      context,
+      title: "Logout",
+      message: "Are you sure you want to logout?",
+      confirmButtonText: "Yes",
+      cancelButtonText: "No",
+      onTapConfirm: () {
+        Navigator.pop(context); // Close the dialog
+        _logout(context);       // Perform logout
+      },
+      onTapCancel: () => Navigator.pop(context),
+      panaraDialogType: PanaraDialogType.custom,
+      color: Color(0xFFbe3235),
+      barrierDismissible: false,
+    );
+  }
+
+  Widget _buildProfileBody(BuildContext context) {
     final fullName = '$firstName $lastName';
+
     return Padding(
       padding: const EdgeInsets.all(25.0),
       child: Column(
@@ -63,13 +136,11 @@ class ProfileScreenBody extends StatelessWidget {
                     ? Icon(Icons.person, size: 45, color: Colors.white)
                     : null,
               ),
-
-              // Edit Icon
               Positioned(
                 bottom: 0,
                 right: 0,
                 child: GestureDetector(
-                  onTap: onChangePhoto,
+                  onTap: () => _showImageOptions(context),
                   child: Container(
                     padding: EdgeInsets.all(6),
                     decoration: BoxDecoration(
@@ -85,16 +156,41 @@ class ProfileScreenBody extends StatelessWidget {
           SizedBox(height: 15),
           Text(fullName,
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-          SizedBox(height: 5),
+          SizedBox(height: 15),
           Text(role,
               style: TextStyle(
                 fontSize: 16,
                 color: Color(0xFFbe3235),
                 fontWeight: FontWeight.w500,
               )),
-          SizedBox(height: 30),
-          _buildProfileField("Username", username),
-          _buildProfileField("User Role", role),
+          _buildProfileField(),
+          SizedBox(height: 25),
+
+          // Centered Log Out Button
+          Center(
+            child: ElevatedButton(
+              onPressed: () => _showLogoutDialog(context), // Show dialog first
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Color(0xFFbe3235)),
+                padding: MaterialStateProperty.all(
+                  EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                ),
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                foregroundColor: MaterialStateProperty.all(Colors.white),
+              ),
+              child: Text(
+                "Log Out",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -120,7 +216,7 @@ class ProfileScreenBody extends StatelessWidget {
       color: Color(0xFFbe3235),
       child: SingleChildScrollView(
         physics: AlwaysScrollableScrollPhysics(),
-        child: _buildProfileBody(),
+        child: _buildProfileBody(context),
       ),
     );
   }

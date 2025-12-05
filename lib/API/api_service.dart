@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -8,6 +9,7 @@ class ApiService {
   static const String _profileEndpoint = '$_baseUrl/getProfileDetails.php';
   static const String _dashboardEndpoint = '$_baseUrl/getDashboardSuperAdminData.php';
   static const String _userEndpoint = '$_baseUrl/getAllUserData.php';
+  static const String _profileImageEndpoint = '$_baseUrl/updateProfileImage.php';
 
   /// Calls login endpoint. Returns decoded JSON map on success.
   /// Throws an Exception for network errors.
@@ -75,6 +77,33 @@ class ApiService {
     // The API returns JSON array (list), so decode to List
     final List<dynamic> jsonList = json.decode(response.body);
     return jsonList;
+  }
+
+  static Future<Map<String, dynamic>> uploadProfileImage({
+    required String username,
+    required File imageFile,
+  }) async {
+    final uri = Uri.parse("$_profileImageEndpoint?username=$username");
+
+    var request = http.MultipartRequest("POST", uri);
+
+    // Send username (PHP expects REQUEST['username'])
+    //request.fields["username"] = username;
+
+    // Send image (PHP expects $_FILES['Img'])
+    request.files.add(
+      await http.MultipartFile.fromPath("Img", imageFile.path),
+    );
+
+    // Send request
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode != 200) {
+      throw Exception("Image upload failed: ${response.statusCode}");
+    }
+
+    return json.decode(response.body);
   }
 
 }

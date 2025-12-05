@@ -29,11 +29,11 @@ class MainScaffold extends StatelessWidget {
         automaticallyImplyLeading: false,
         title: Image.asset('assets/images/logo.png', height: 80),
         actions: [
-          IconButton(
-            tooltip: 'Logout',
-            icon: Icon(Icons.exit_to_app, color: Colors.black),
-            onPressed: onLogoutTap,
-          )
+          // IconButton(
+          //   tooltip: 'Logout',
+          //   icon: Icon(Icons.exit_to_app, color: Colors.black),
+          //   onPressed: onLogoutTap,
+          // )
         ],
       ),
 
