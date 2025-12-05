@@ -164,12 +164,65 @@ class ProfileScreenBody extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               )),
           _buildProfileField(),
-          SizedBox(height: 25),
 
-          // Centered Log Out Button
+          // UPDATE PROFILE CARD
+          Container(
+            margin: EdgeInsets.only(bottom: 15),
+            padding: EdgeInsets.symmetric(vertical: 5),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 6,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: ListTile(
+              leading: Icon(Icons.settings, color: Color(0xFFbe3235), size: 24),
+              title: Text(
+                "Update Profile",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.black54),
+              onTap: onUpdateAccount,
+            ),
+          ),
+
+          // RESET PASSWORD CARD
+          Container(
+            margin: EdgeInsets.only(bottom: 25),
+            padding: EdgeInsets.symmetric(vertical: 5),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 6,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: ListTile(
+              leading: Icon(Icons.lock, color: Color(0xFFbe3235), size: 24),
+              title: Text(
+                "Reset Password",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.black54),
+              onTap: onResetPassword,
+            ),
+          ),
+
+          SizedBox(height: 15),
+
+          // LOGOUT BUTTON
           Center(
             child: ElevatedButton(
-              onPressed: () => _showLogoutDialog(context), // Show dialog first
+              onPressed: () => _showLogoutDialog(context),
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Color(0xFFbe3235)),
                 padding: MaterialStateProperty.all(
@@ -216,7 +269,10 @@ class ProfileScreenBody extends StatelessWidget {
       color: Color(0xFFbe3235),
       child: SingleChildScrollView(
         physics: AlwaysScrollableScrollPhysics(),
-        child: _buildProfileBody(context),
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 200),
+          child: _buildProfileBody(context),
+        ),
       ),
     );
   }
