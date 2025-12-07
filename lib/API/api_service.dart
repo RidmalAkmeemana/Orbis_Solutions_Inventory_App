@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   static const String _baseUrl = 'https://uat.orbislk.com/Orbis_Solutions_Inventory_System/API/MobileApp';
+  // static const String _baseUrl = 'http://localhost/Orbis_Solutions_Inventory_System/API/MobileApp';
   static const String _loginEndpoint = '$_baseUrl/getAdminLogin.php';
   static const String _profileEndpoint = '$_baseUrl/getProfileDetails.php';
   static const String _dashboardEndpoint = '$_baseUrl/getDashboardSuperAdminData.php';
@@ -65,7 +66,9 @@ class ApiService {
 
   //(Get All User List)
   static Future<List<dynamic>> getAllUsers() async {
-    final uri = Uri.parse("$_userEndpoint");
+    final prefs = await SharedPreferences.getInstance();
+    final username = prefs.getString("username") ?? "";
+    final uri = Uri.parse("$_userEndpoint?username=$username");
     final response = await http.get(uri);
 
     // print("Users API Response: ${response.body}");
