@@ -76,7 +76,7 @@ class _ProfileScreenBodyState extends State<ProfileScreenBody> {
         PanaraInfoDialog.show(
           context,
           title: "Success",
-          message: "Profile image uploaded successfully.",
+          message: "Record Updated Successfully !",
           buttonText: "OK",
           panaraDialogType: PanaraDialogType.custom,
           color: Color(0xFFbe3235),
@@ -94,7 +94,7 @@ class _ProfileScreenBodyState extends State<ProfileScreenBody> {
         final message = result['message']?.toString() ?? 'Upload failed';
         PanaraInfoDialog.show(
           context,
-          title: "Upload Failed",
+          title: "Error",
           message: message,
           buttonText: "OK",
           onTapDismiss: () => Navigator.pop(context),
@@ -176,6 +176,7 @@ class _ProfileScreenBodyState extends State<ProfileScreenBody> {
           (route) => false,
     );
   }
+
   // Show Logout Confirmation Dialog
   void _showLogoutDialog(BuildContext context) {
     PanaraConfirmDialog.show(
@@ -192,6 +193,247 @@ class _ProfileScreenBodyState extends State<ProfileScreenBody> {
       panaraDialogType: PanaraDialogType.custom,
       color: Color(0xFFbe3235),
       barrierDismissible: false,
+    );
+  }
+
+  void _showUpdateProfileDialog() {
+    final TextEditingController firstNameCtrl =
+    TextEditingController(text: widget.firstName);
+    final TextEditingController lastNameCtrl =
+    TextEditingController(text: widget.lastName);
+    final TextEditingController usernameCtrl =
+    TextEditingController(text: widget.username);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          titlePadding: EdgeInsets.only(top: 10, left: 20, right: 10),
+          contentPadding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+
+          title: Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: Row(
+              children: [
+                Text(
+                  "Personal Details",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+
+                Spacer(),
+
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Icon(Icons.cancel, color: Color(0xFFbe3235)),
+                ),
+              ],
+            ),
+          ),
+
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+
+              SizedBox(height: 20),
+
+              // First Name
+              TextField(
+                controller: firstNameCtrl,
+                decoration: InputDecoration(
+                  labelText: "First Name",
+                  floatingLabelStyle: TextStyle(color: Color(0xFFbe3235)),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFFD9D9D9), width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFFbe3235), width: 1),
+                  ),
+                ),
+              ),
+              SizedBox(height: 15),
+
+              // Last Name
+              TextField(
+                controller: lastNameCtrl,
+                decoration: InputDecoration(
+                  labelText: "Last Name",
+                  floatingLabelStyle: TextStyle(color: Color(0xFFbe3235)),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFFD9D9D9), width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFFbe3235), width: 1),
+                  ),
+                ),
+              ),
+              SizedBox(height: 15),
+
+              // Username
+              TextField(
+                controller: usernameCtrl,
+                decoration: InputDecoration(
+                  labelText: "Username",
+                  floatingLabelStyle: TextStyle(color: Color(0xFFbe3235)),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFFD9D9D9), width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFFbe3235), width: 1),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+
+              // FULL-WIDTH UPDATE BUTTON
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFbe3235),
+                    padding: EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+
+                    PanaraInfoDialog.show(
+                      context,
+                      title: "Success",
+                      message: "Record Updated Successfully !",
+                      buttonText: "OK",
+                      panaraDialogType: PanaraDialogType.custom,
+                      color: Color(0xFFbe3235),
+                      onTapDismiss: () => Navigator.pop(context),
+                    );
+                  },
+                  child: Text(
+                    "Save Changes",
+                    style: TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showUpdatePasswordDialog() {
+
+    final TextEditingController _passwordController = TextEditingController();
+    final TextEditingController _confirmPasswordController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          titlePadding: EdgeInsets.only(top: 10, left: 20, right: 10),
+          contentPadding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+
+          title: Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: Row(
+              children: [
+                Text(
+                  "Change Password",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+
+                Spacer(),
+
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Icon(Icons.cancel, color: Color(0xFFbe3235)),
+                ),
+              ],
+            ),
+          ),
+
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+
+              SizedBox(height: 20),
+
+              // First Name
+              TextField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: "New Password",
+                  floatingLabelStyle: TextStyle(color: Color(0xFFbe3235)),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFFD9D9D9), width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFFbe3235), width: 1),
+                  ),
+                ),
+              ),
+              SizedBox(height: 15),
+
+              // Last Name
+              TextField(
+                controller: _confirmPasswordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: "Confirm Password",
+                  floatingLabelStyle: TextStyle(color: Color(0xFFbe3235)),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFFD9D9D9), width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFFbe3235), width: 1),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+
+              // FULL-WIDTH UPDATE BUTTON
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFbe3235),
+                    padding: EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+
+                    PanaraInfoDialog.show(
+                      context,
+                      title: "Success",
+                      message: "Record Updated Successfully !",
+                      buttonText: "OK",
+                      panaraDialogType: PanaraDialogType.custom,
+                      color: Color(0xFFbe3235),
+                      onTapDismiss: () => Navigator.pop(context),
+                    );
+                  },
+                  child: Text(
+                    "Save Changes",
+                    style: TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -288,7 +530,9 @@ class _ProfileScreenBodyState extends State<ProfileScreenBody> {
               leading: Icon(Icons.settings, color: Color(0xFFbe3235), size: 24),
               title: Text("Update Profile", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
               trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.black54),
-              onTap: widget.onUpdateAccount,
+              onTap: () {
+                _showUpdateProfileDialog();
+              },
             ),
           ),
 
@@ -305,7 +549,9 @@ class _ProfileScreenBodyState extends State<ProfileScreenBody> {
               leading: Icon(Icons.lock, color: Color(0xFFbe3235), size: 24),
               title: Text("Reset Password", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
               trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.black54),
-              onTap: widget.onResetPassword,
+              onTap: () {
+                _showUpdatePasswordDialog();
+              },
             ),
           ),
 
