@@ -11,9 +11,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'LogInScreen.dart';
 
 class ProfileScreenBody extends StatefulWidget {
+  final String userId;
   final String firstName;
   final String lastName;
   final String username;
+  final String newPassword;
+  final String conPassword;
   final String role;
   final String profileImage;
   final bool isLoading;
@@ -27,9 +30,12 @@ class ProfileScreenBody extends StatefulWidget {
   final VoidCallback? onLogout;
 
   const ProfileScreenBody({
+    required this.userId,
     required this.firstName,
     required this.lastName,
     required this.username,
+    required this.newPassword,
+    required this.conPassword,
     required this.role,
     required this.profileImage,
     this.isLoading = false,
@@ -298,23 +304,48 @@ class _ProfileScreenBodyState extends State<ProfileScreenBody> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  onPressed: () {
-                    Navigator.pop(context);
-
-                    PanaraInfoDialog.show(
-                      context,
-                      title: "Success",
-                      message: "Record Updated Successfully !",
-                      buttonText: "OK",
-                      panaraDialogType: PanaraDialogType.custom,
-                      color: Color(0xFFbe3235),
-                      onTapDismiss: () => Navigator.pop(context),
+                  onPressed: () async {
+                    final result = await ApiService.updateProfile(
+                      userId: widget.userId,
+                      firstName: firstNameCtrl.text.trim(),
+                      lastName: lastNameCtrl.text.trim(),
+                      username: usernameCtrl.text.trim(),
                     );
+
+                    if (result['success'] == true || result['success'] == 'true') {
+                      // Show success dialog and logout on dismiss
+                      PanaraInfoDialog.show(
+                        context,
+                        title: "Success",
+                        message: "Record Updated Successfully !",
+                        buttonText: "OK",
+                        panaraDialogType: PanaraDialogType.custom,
+                        color: Color(0xFFbe3235),
+                        barrierDismissible: false, // prevent tapping outside
+                        onTapDismiss: () async {
+                          Navigator.pop(context); // close dialog
+                          if (mounted) await _logout(context); // then logout safely
+                        },
+                      );
+                    } else {
+                      PanaraInfoDialog.show(
+                        context,
+                        title: "Error",
+                        message: "Failed to update profile",
+                        buttonText: "OK",
+                        panaraDialogType: PanaraDialogType.custom,
+                        color: Color(0xFFbe3235),
+                        onTapDismiss: () => Navigator.pop(context),
+                      );
+                    }
                   },
                   child: Text(
                     "Save Changes",
                     style: TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -327,8 +358,10 @@ class _ProfileScreenBodyState extends State<ProfileScreenBody> {
 
   void _showUpdatePasswordDialog() {
 
-    final TextEditingController _passwordController = TextEditingController();
-    final TextEditingController _confirmPasswordController = TextEditingController();
+    final TextEditingController _passwordController = TextEditingController(text: widget.newPassword);
+    final TextEditingController _confirmPasswordController = TextEditingController(text: widget.conPassword);
+    final TextEditingController usernameCtrl =
+    TextEditingController(text: widget.username);
 
     showDialog(
       context: context,
@@ -410,18 +443,46 @@ class _ProfileScreenBodyState extends State<ProfileScreenBody> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  onPressed: () {
-                    Navigator.pop(context);
-
-                    PanaraInfoDialog.show(
-                      context,
-                      title: "Success",
-                      message: "Record Updated Successfully !",
-                      buttonText: "OK",
-                      panaraDialogType: PanaraDialogType.custom,
-                      color: Color(0xFFbe3235),
-                      onTapDismiss: () => Navigator.pop(context),
+                  onPressed: () async {
+                    final result = await ApiService.updatePassword(
+                      userId: widget.userId,
+                      newPassword: _passwordController.text.trim(),
+                      conPassword: _confirmPasswordController.text.trim(),
+                      username: usernameCtrl.text.trim(),
                     );
+
+                    if (result['success'] == true || result['success'] == 'true') {
+                      // Show success dialog and logout on dismiss
+                      PanaraInfoDialog.show(
+                        context,
+                        title: "Success",
+                        message: "Record Updated Successfully !",
+                        buttonText: "OK",
+                        panaraDialogType: PanaraDialogType.custom,
+                        color: Color(0xFFbe3235),
+                        barrierDismissible: false, // prevent tapping outside
+                        onTapDismiss: () async {
+                          Navigator.pop(context); // close dialog
+                          if (mounted) await _logout(context); // then logout safely
+                        },
+                      );
+                    } else {
+                      String errorMessage = "Failed to update password";
+                      if (result['error'] == 'password_mismatch') {
+                        errorMessage = "Password Mismatch!";
+                      }
+                      PanaraInfoDialog.show(
+                        context,
+                        title: "Error",
+                        message: errorMessage,
+                        buttonText: "OK",
+                        panaraDialogType: PanaraDialogType.custom,
+                        color: Color(0xFFbe3235),
+                        onTapDismiss: () {
+                          Navigator.of(context, rootNavigator: true).pop();
+                        },
+                      );
+                    }
                   },
                   child: Text(
                     "Save Changes",

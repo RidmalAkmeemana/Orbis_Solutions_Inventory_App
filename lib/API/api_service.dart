@@ -4,13 +4,15 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  static const String _baseUrl = 'https://uat.orbislk.com/Orbis_Solutions_Inventory_System/API/MobileApp';
-  // static const String _baseUrl = 'http://localhost/Orbis_Solutions_Inventory_System/API/MobileApp';
+  // static const String _baseUrl = 'https://uat.orbislk.com/Orbis_Solutions_Inventory_System/API/MobileApp';
+  static const String _baseUrl = 'http://localhost/Orbis_Solutions_Inventory_System/API/MobileApp';
   static const String _loginEndpoint = '$_baseUrl/getAdminLogin.php';
   static const String _profileEndpoint = '$_baseUrl/getProfileDetails.php';
   static const String _dashboardEndpoint = '$_baseUrl/getDashboardSuperAdminData.php';
   static const String _userEndpoint = '$_baseUrl/getAllUserData.php';
   static const String _profileImageEndpoint = '$_baseUrl/updateProfileImage.php';
+  static const String _profileDetailsEndpoint = '$_baseUrl/updateProfile.php';
+  static const String _profilePasswordEndpoint = '$_baseUrl/updatePassword.php';
 
   /// Calls login endpoint. Returns decoded JSON map on success.
   /// Throws an Exception for network errors.
@@ -39,7 +41,7 @@ class ApiService {
 
     final response = await http.get(uri);
 
-    //print("Profile API Response: ${response.body}");
+    // print("Profile API Response: ${response.body}");
 
     if (response.statusCode != 200) {
       throw Exception("Failed to load profile. Status: ${response.statusCode}");
@@ -107,6 +109,43 @@ class ApiService {
     }
 
     return json.decode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> updateProfile({
+    required String userId,
+    required String firstName,
+    required String lastName,
+    required String username,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$_profileDetailsEndpoint?username=$username'),
+      body: {
+        'Id': userId,
+        'First_Name': firstName,
+        'Last_Name': lastName,
+        'Username': username,
+      },
+    );
+
+    return jsonDecode(response.body);
+  }
+
+  static Future<Map<String, dynamic>> updatePassword({
+    required String userId,
+    required String newPassword,
+    required String conPassword,
+    required String username,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$_profilePasswordEndpoint?username=$username'),
+      body: {
+        'Id': userId,
+        'newpassword': newPassword,
+        'conpassword': conPassword,
+      },
+    );
+
+    return jsonDecode(response.body);
   }
 
 }

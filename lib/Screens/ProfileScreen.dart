@@ -15,9 +15,12 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  String _userId = '';
   String _userName = '';
   String _firstName = '';
   String _lastName = '';
+  String _newPassword = '';
+  String _conPassword = '';
   String _userRole = '';
   String _profileImage = "";
   bool isLoading = true; // Loader active initially
@@ -84,6 +87,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final data = await ApiService.getProfile(username);
       if (data['success'] == true) {
         setState(() {
+          _userId = data['Id'] ?? '';
           _firstName = data['First_Name'] ?? '';
           _lastName = data['Last_Name'] ?? '';
           _userName = data['Username'] ?? '';
@@ -139,9 +143,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       )
           : ProfileScreenBody(
+        userId: _userId,
         firstName: _firstName,
         lastName: _lastName,
         username: _userName,
+        newPassword: _newPassword,
+        conPassword: _conPassword,
         role: _userRole,
         profileImage: _profileImage,
         isLoading: false,

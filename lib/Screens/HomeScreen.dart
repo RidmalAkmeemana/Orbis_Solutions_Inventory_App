@@ -17,9 +17,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String _userId = '';
   String _username = '';
   String _firstName = '';
   String _lastName = '';
+  String _newPassword = '';
+  String _conPassword = '';
   String _role = '';
   String _profileImage = '';
 
@@ -100,6 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final data = await ApiService.getProfile(username);
       if (data['success'] == true) {
         setState(() {
+          _userId = data['Id'] ?? '';
           _firstName = data['First_Name'] ?? '';
           _lastName = data['Last_Name'] ?? '';
           _username = data['Username'] ?? '';
@@ -211,9 +215,12 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       )
           : ProfileScreenBody(
+        userId: _userId,
         firstName: _firstName,
         lastName: _lastName,
         username: _username,
+        newPassword: _newPassword,
+        conPassword: _conPassword,
         role: _role,
         profileImage: _profileImage,
         isLoading: false,
