@@ -444,6 +444,24 @@ class _ProfileScreenBodyState extends State<ProfileScreenBody> {
                     ),
                   ),
                   onPressed: () async {
+                    // FRONT-END VALIDATION (NEW)
+                    if (_passwordController.text.trim().isEmpty ||
+                        _confirmPasswordController.text.trim().isEmpty) {
+
+                      PanaraInfoDialog.show(
+                        context,
+                        title: "Error",
+                        message: "New Password and Confirm Password cannot be empty!",
+                        buttonText: "OK",
+                        panaraDialogType: PanaraDialogType.custom,
+                        color: Color(0xFFbe3235),
+                        onTapDismiss: () {
+                          Navigator.of(context, rootNavigator: true).pop();
+                        },
+                      );
+                      return;
+                    }
+
                     final result = await ApiService.updatePassword(
                       userId: widget.userId,
                       newPassword: _passwordController.text.trim(),
@@ -452,7 +470,6 @@ class _ProfileScreenBodyState extends State<ProfileScreenBody> {
                     );
 
                     if (result['success'] == true || result['success'] == 'true') {
-                      // Show success dialog and logout on dismiss
                       PanaraInfoDialog.show(
                         context,
                         title: "Success",
@@ -460,17 +477,19 @@ class _ProfileScreenBodyState extends State<ProfileScreenBody> {
                         buttonText: "OK",
                         panaraDialogType: PanaraDialogType.custom,
                         color: Color(0xFFbe3235),
-                        barrierDismissible: false, // prevent tapping outside
+                        barrierDismissible: false,
                         onTapDismiss: () async {
-                          Navigator.pop(context); // close dialog
-                          if (mounted) await _logout(context); // then logout safely
+                          Navigator.pop(context);
+                          if (mounted) await _logout(context);
                         },
                       );
                     } else {
                       String errorMessage = "Failed to update password";
+
                       if (result['error'] == 'password_mismatch') {
                         errorMessage = "Password Mismatch!";
                       }
+
                       PanaraInfoDialog.show(
                         context,
                         title: "Error",
@@ -484,6 +503,7 @@ class _ProfileScreenBodyState extends State<ProfileScreenBody> {
                       );
                     }
                   },
+
                   child: Text(
                     "Save Changes",
                     style: TextStyle(
